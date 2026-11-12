@@ -1,0 +1,21 @@
+{
+  "name": "每日健康记录",
+  "short_name": "健康日记",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f8f6",
+  "theme_color": "#f7faf8",
+  "description": "个人每日健康记录与趋势观察",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

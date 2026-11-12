@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7faf8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<title>每日健康记录</title>
+<style>
+:root{--bg:#f5f8f6;--card:#fff;--ink:#26352f;--muted:#829089;--line:#e8efeb;--green:#4d9278;--pale:#eaf4ef;--warn:#fff4e5;--red:#b65d55}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:620px;margin:auto;padding:env(safe-area-inset-top) 16px calc(28px + env(safe-area-inset-bottom))}
+header{display:flex;justify-content:space-between;align-items:center;padding:22px 2px 16px}
+h1{font-size:25px;letter-spacing:1px;margin:0;font-weight:700}.sub{font-size:12px;color:var(--muted)}
+.tabs{display:flex;gap:7px;margin:4px 0 14px;background:#eaf0ec;padding:4px;border-radius:14px}
+.tabs button{flex:1;border:0;background:transparent;padding:10px 4px;border-radius:11px;color:#68776f;font-weight:600}
+.tabs button.active{background:#fff;color:var(--green);box-shadow:0 1px 4px #0000000b}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 2px 12px #20392b05}
+h2{font-size:16px;margin:0 0 13px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+small,.muted{color:var(--muted)}label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px}
+input,textarea,select{font:inherit;color:var(--ink);background:#fbfcfb;border:1px solid var(--line);border-radius:11px;padding:11px;width:100%;min-width:0;outline:none}
+input:focus,textarea:focus,select:focus{border-color:#8db9a5}textarea{resize:vertical;min-height:90px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{min-width:0}.switchrow{display:flex;align-items:center;justify-content:space-between}
+.switch{width:46px;height:27px;appearance:none;background:#dfe7e2;border-radius:99px;position:relative;padding:0;border:0;cursor:pointer}
+.switch:checked{background:var(--green)}.switch:before{content:"";position:absolute;width:21px;height:21px;border-radius:50%;background:#fff;left:3px;top:3px;transition:.15s}.switch:checked:before{left:22px}
+.meal{background:#f8faf8;border-radius:13px;padding:12px;margin:9px 0}.mealname{font-weight:650;margin-bottom:8px}
+button{cursor:pointer}.primary{border:0;border-radius:12px;background:var(--green);color:white;padding:12px 15px;font-weight:650;width:100%}
+.secondary{border:1px solid var(--line);background:#fff;color:var(--green);padding:10px 12px;border-radius:11px;font-weight:600}
+.danger{color:var(--red);border:0;background:transparent;padding:5px 8px}
+.row{display:flex;align-items:center;gap:9px}.row>*{flex:1}
+.stool{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.pill{font-size:12px;border-radius:20px;padding:3px 9px;background:var(--pale);color:var(--green)}
+.pill.bad{background:var(--warn);color:#9b6a2b}
+.hidden{display:none!important}.datebar{display:flex;align-items:center;gap:10px}.datebar input{flex:1}
+.metricgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric{padding:13px;background:#f8faf8;border-radius:13px}.metric b{display:block;font-size:21px;margin-top:4px}
+.report{white-space:pre-wrap;background:#f8faf8;border-radius:13px;padding:13px;font-size:14px}
+.footer{text-align:center;font-size:11px;color:#9aa69f;padding:14px}
+@media(min-width:500px){.app{padding-left:22px;padding-right:22px}}
+</style>
+</head>
+<body><main class="app">
+<header><div><h1>健康日记</h1><div class="sub">把每天的身体变化，慢慢记录下来</div></div><div style="font-size:28px">♡</div></header>
+<nav class="tabs"><button class="active" data-tab="daily">每日记录</button><button data-tab="reports">趋势报告</button><button data-tab="backup">数据管理</button></nav>
+<section id="daily">
+<div class="card"><label>记录日期</label><div class="datebar"><input id="date" type="date"><button class="secondary" id="today">今天</button></div><div class="sub" style="margin-top:7px">切换日期可查看或补录历史记录，内容会自动保存。</div></div>
+<div class="card"><h2>01 · 经期</h2><div class="switchrow"><span>今天是否在经期</span><input class="switch" id="period" type="checkbox"></div></div>
+<div class="card"><h2>02 · 体重 <small>kg</small></h2><div class="grid2"><div class="field"><label>早</label><input id="weightAM" type="number" step=".1" inputmode="decimal" placeholder="早晨体重"></div><div class="field"><label>晚</label><input id="weightPM" type="number" step=".1" inputmode="decimal" placeholder="晚上体重"></div></div></div>
+<div class="card"><h2>03 · 体温 <small>℃</small></h2><div class="grid2"><div class="field"><label>早</label><input id="tempAM" type="number" step=".1" inputmode="decimal" placeholder="早晨体温"></div><div class="field"><label>晚</label><input id="tempPM" type="number" step=".1" inputmode="decimal" placeholder="晚上体温"></div></div></div>
+<div class="card"><h2>04 · 排便 <span class="pill" id="stoolCount">0 次</span></h2><div class="grid2"><div><label>时间</label><input id="stoolTime" type="time" value="08:00"></div><div><label>状态</label><select id="stoolStatus"><option>正常</option><option>异常</option></select></div></div><button class="secondary" id="addStool" style="width:100%;margin-top:10px">＋ 添加排便记录</button><div id="stools"></div></div>
+<div class="card"><h2>05 · 一日三餐</h2><div class="sub">食物可填写多种，重量填写总重量或在名称中分别标注。</div>
+<div class="meal"><div class="mealname">🌤 早餐</div><label>食物名称</label><input id="breakfastFood" placeholder="如：鸡蛋、牛奶、全麦面包"><label style="margin-top:8px">重量（g）</label><input id="breakfastWeight" placeholder="如：50、250、60"></div>
+<div class="meal"><div class="mealname">☀️ 午餐</div><label>食物名称</label><input id="lunchFood" placeholder="如：米饭、鸡胸肉、西兰花"><label style="margin-top:8px">重量（g）</label><input id="lunchWeight" placeholder="如：150、100、120"></div>
+<div class="meal"><div class="mealname">🌙 晚餐</div><label>食物名称</label><input id="dinnerFood" placeholder="如：杂粮饭、鱼、青菜"><label style="margin-top:8px">重量（g）</label><input id="dinnerWeight" placeholder="如：120、100、150"></div></div>
+<div class="card"><h2>06 · 每日便签</h2><textarea id="note" placeholder="睡眠、运动、饮水、精神状态、身体不适或其他杂事……"></textarea></div>
+<div class="card"><h2>07 · 当日小结</h2><div class="sub" style="margin-bottom:10px">根据已填写信息生成提示，不替代医生诊断。</div><button class="primary" id="analyzeDay">生成当天分析</button><div id="dayReport" class="report hidden" style="margin-top:12px"></div></div>
+</section>
+<section id="reports" class="hidden">
+<div class="card"><h2>健康趋势</h2><label>报告周期</label><div class="row"><button class="secondary" id="weekBtn">最近 7 天</button><button class="secondary" id="monthBtn">本月</button></div><div id="reportRange" class="sub" style="margin:10px 0"></div><div class="metricgrid" id="metrics"></div></div>
+<div class="card"><h2>周期分析</h2><div id="trendReport" class="report">选择周期查看趋势。</div></div>
+<div class="card"><h2>每日记录概览</h2><div id="recordList"></div></div>
+</section>
+<section id="backup" class="hidden">
+<div class="card"><h2>数据备份与导出</h2><p class="sub">数据默认保存在这台设备的浏览器本地。建议定期导出备份，避免清理浏览器数据导致记录丢失。</p><button class="primary" id="exportCsv">导出 Excel 兼容表格（CSV）</button><button class="secondary" id="exportJson" style="width:100%;margin-top:9px">备份全部数据（JSON）</button><label style="margin-top:18px">恢复 JSON 备份</label><input type="file" id="importJson" accept=".json,application/json"><div class="sub" style="margin-top:8px">导入会合并备份中的日期记录；同一天以备份内容为准。</div></div>
+<div class="card"><h2>隐私与存储</h2><div class="sub">本应用不会主动上传你的健康记录。卸载浏览器、清除网站数据或更换手机前，请先导出备份。</div></div>
+</section>
+<div class="footer">健康日记 · 数据仅保存在本设备</div>
+</main>
+<script>
+const $=id=>document.getElementById(id), KEY='health-journal-v1';
+const todayStr=()=>{let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+let data={};try{data=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+let current=todayStr(), reportMode='week';
+const blank=()=>({period:false,weightAM:'',weightPM:'',tempAM:'',tempPM:'',stools:[],meals:{breakfast:{food:'',weight:''},lunch:{food:'',weight:''},dinner:{food:'',weight:''}},note:''});
+function rec(){return data[current]||(data[current]=blank())}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function load(){ $('date').value=current;let r=rec();$('period').checked=!!r.period;
+['weightAM','weightPM','tempAM','tempPM','note'].forEach(k=>$(k).value=r[k]||'');
+['breakfast','lunch','dinner'].forEach(m=>{ $(m+'Food').value=r.meals?.[m]?.food||'';$(m+'Weight').value=r.meals?.[m]?.weight||'';});
+renderStools();save()}
+function bind(id,fn){$(id).addEventListener('input',()=>{fn($(id).value);save()})}
+$('date').addEventListener('change',e=>{current=e.target.value||todayStr();$('dayReport').classList.add('hidden');load()});
+$('today').onclick=()=>{current=todayStr();load()};
+$('period').onchange=e=>{rec().period=e.target.checked;save()};
+['weightAM','weightPM','tempAM','tempPM','note'].forEach(k=>bind(k,v=>rec()[k]=v));
+['breakfast','lunch','dinner'].forEach(m=>{bind(m+'Food',v=>rec().meals[m].food=v);bind(m+'Weight',v=>rec().meals[m].weight=v)});
+$('addStool').onclick=()=>{rec().stools.push({time:$('stoolTime').value,status:$('stoolStatus').value});rec().stools.sort((a,b)=>a.time.localeCompare(b.time));save();renderStools()};
+function renderStools(){let a=rec().stools||[];$('stoolCount').textContent=a.length+' 次';$('stools').innerHTML=a.map((s,i)=>`<div class="stool"><b>${esc(s.time)}</b><span class="pill ${s.status==='异常'?'bad':''}">${esc(s.status)}</span><button class="danger" data-del="${i}">删除</button></div>`).join('');$('stools').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{rec().stools.splice(+b.dataset.del,1);save();renderStools()})}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function daysBetween(a,b){let d=new Date(a+'T12:00:00');let out=[];while(d<=new Date(b+'T12:00:00')){out.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);d.setDate(d.getDate()+1)}return out}
+function dayAnalysis(r){let meals=['breakfast','lunch','dinner'].map(m=>r.meals?.[m]?.food||'');let all=meals.join('、');let tips=[];
+if(meals.filter(Boolean).length<3)tips.push('三餐记录不完整，暂时无法全面判断饮食均衡情况。');
+else tips.push('三餐均有记录。建议检查每餐是否包含主食、优质蛋白和蔬菜，并适量搭配水果、奶类及豆类。');
+if(!all)tips.push('尚未填写食物内容。');
+else {if(!/菜|蔬|菠菜|西兰花|番茄|水果|苹果|香蕉|橙|莓|瓜/.test(all))tips.push('记录中暂未明显看到蔬菜或水果，留意当天是否摄入足量。');if(!/蛋|奶|肉|鱼|虾|豆|鸡|牛|猪|酸奶| tofu/.test(all))tips.push('记录中暂未明显看到蛋白质食物，可考虑蛋、奶、鱼肉或豆制品。');}
+if(!r.weightAM&&!r.weightPM)tips.push('没有体重数据，无法观察当日体重变化。');
+if(!r.tempAM&&!r.tempPM)tips.push('没有体温数据，无法评估体温变化。');
+if((r.tempAM&&+r.tempAM>=37.3)||(r.tempPM&&+r.tempPM>=37.3))tips.push('有体温读数达到或超过 37.3℃，请结合测量方式、症状及复测结果判断；持续发热或不适请咨询医生。');
+if(r.stools?.some(s=>s.status==='异常'))tips.push('记录到异常排便。建议在便签补充性状、颜色、腹痛等情况；若持续异常或出现便血、剧烈腹痛请及时就医。');
+if(r.period)tips.push('已标记经期。可同时记录疼痛、经量和精神状态，观察周期规律。');
+return '当日观察\\n'+tips.map(x=>'• '+x).join('\\n')+'\\n\\n说明：仅基于你填写的信息作一般性提示，缺少食物细项、份量、年龄、活动量等资料时，不能准确计算营养摄入，也不能诊断疾病。'}
+$('analyzeDay').onclick=()=>{$('dayReport').textContent=dayAnalysis(rec());$('dayReport').classList.remove('hidden')};
+function getPeriod(){let now=new Date(),start,end;if(reportMode==='week'){end=todayStr();let d=new Date(now);d.setDate(d.getDate()-6);start=d.toISOString().slice(0,10)}else{start=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;end=todayStr()}return {start,end,days:daysBetween(start,end)}}
+function avg(vals){let a=vals.filter(v=>v!==''&&v!=null&&Number.isFinite(+v)).map(Number);return a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):'—'}
+function makeReport(){let p=getPeriod(),rows=p.days.filter(d=>data[d]).map(d=>({date:d,...data[d]}));$('reportRange').textContent=p.start+' 至 '+p.end+' · 有记录 '+rows.length+'/'+p.days.length+' 天';
+let weights=rows.flatMap(r=>[r.weightAM,r.weightPM]),temps=rows.flatMap(r=>[r.tempAM,r.tempPM]),stools=rows.reduce((n,r)=>n+(r.stools?.length||0),0),ab=rows.reduce((n,r)=>n+(r.stools||[]).filter(s=>s.status==='异常').length,0),periods=rows.filter(r=>r.period).length;
+$('metrics').innerHTML=[['平均体重',avg(weights),'kg'],['平均体温',avg(temps),'℃'],['排便记录',stools,'次'],['经期标记',periods,'天']].map(x=>`<div class="metric"><small>${x[0]}</small><b>${x[1]} <small>${x[2]}</small></b></div>`).join('');
+let complete=rows.filter(r=>['breakfast','lunch','dinner'].every(m=>r.meals?.[m]?.food)).length;
+let food=rows.flatMap(r=>['breakfast','lunch','dinner'].map(m=>r.meals?.[m]?.food||'')).filter(Boolean);
+let tips=[`记录完整度：${rows.length}/${p.days.length} 天有记录。`,`三餐完整记录：${complete} 天。`,`排便共 ${stools} 次，其中标记异常 ${ab} 次。`,`经期标记 ${periods} 天。`];
+if(weights.filter(Boolean).length>=2)tips.push('体重记录平均值为 '+avg(weights)+' kg；建议在相近时间、相似条件下测量，再观察长期趋势。');else tips.push('体重数据不足，暂不判断趋势。');
+if(temps.filter(Boolean).length)tips.push('体温平均记录值 '+avg(temps)+'℃。早晚测量条件不同，不宜简单用平均值判断健康。');
+if(food.length)tips.push('饮食记录关键词：'+food.join('、')+'。请留意蔬果、全谷物、蛋白质食物和奶/豆类是否多样搭配。');else tips.push('该周期没有食物记录，无法分析饮食结构。');
+$('trendReport').textContent=tips.map(x=>'• '+x).join('\\n')+'\\n\\n这是一份记录汇总，不是医学诊断。体重和体温受测量时间、周期、活动及环境影响。';
+$('recordList').innerHTML=rows.length?rows.slice().reverse().map(r=>`<div class="stool"><span>${r.date}</span><span class="muted">${r.period?'经期 · ':''}${(r.stools||[]).length} 次排便</span><span>${r.weightAM||'—'} kg</span></div>`).join(''):'<div class="muted">这个周期还没有记录。</div>'}
+$('weekBtn').onclick=()=>{reportMode='week';makeReport()};$('monthBtn').onclick=()=>{reportMode='month';makeReport()};
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));['daily','reports','backup'].forEach(id=>$(id).classList.toggle('hidden',id!==b.dataset.tab));if(b.dataset.tab==='reports')makeReport()});
+function download(name,content,type){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([content],{type}));a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+$('exportJson').onclick=()=>download('健康日记备份-'+todayStr()+'.json',JSON.stringify(data,null,2),'application/json');
+$('exportCsv').onclick=()=>{let cols=['日期','经期','早体重kg','晚体重kg','早体温℃','晚体温℃','排便明细','早餐食物','早餐重量g','午餐食物','午餐重量g','晚餐食物','晚餐重量g','便签'];let q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';let lines=[cols.map(q).join(',')];Object.keys(data).sort().forEach(d=>{let r=data[d],s=(r.stools||[]).map(x=>x.time+' '+x.status).join('；');lines.push([d,r.period?'是':'否',r.weightAM,r.weightPM,r.tempAM,r.tempPM,s,...['breakfast','lunch','dinner'].flatMap(m=>[r.meals?.[m]?.food,r.meals?.[m]?.weight]),r.note].map(q).join(','))});download('健康日记-'+todayStr()+'.csv','\\ufeff'+lines.join('\\r\\n'),'text/csv;charset=utf-8')};
+$('importJson').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let x=JSON.parse(await f.text());if(!x||typeof x!=='object'||Array.isArray(x))throw Error();data={...data,...x};save();load();alert('备份导入成功')}catch(err){alert('文件格式不正确，未能导入')}e.target.value=''};
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+load();
+</script></body></html>
